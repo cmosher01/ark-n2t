@@ -1,6 +1,9 @@
 FROM eclipse-temurin:17-jdk-jammy AS build
 
-MAINTAINER Christopher A. Mosher <cmosher01@gmail.com>
+LABEL org.opencontainers.image.authors="Christopher Alan Mosher <cmosher01@gmail.com>"
+LABEL org.opencontainers.image.title="ARK N2T resolver servlet"
+LABEL org.opencontainers.image.url="https://github.com/cmosher01/ark-n2t"
+LABEL org.opencontainers.image.licenses="GPL-3.0-or-later"
 
 USER root
 ENV HOME /root
@@ -24,6 +27,5 @@ USER root
 ENV HOME /root
 WORKDIR $HOME
 
-COPY src/main/tomcat/conf /usr/local/tomcat/conf
-
+COPY --from=build /root/src/main/tomcat/conf /usr/local/tomcat/conf
 COPY --from=build /root/build/libs/*.war /usr/local/tomcat/webapps/ROOT.war
