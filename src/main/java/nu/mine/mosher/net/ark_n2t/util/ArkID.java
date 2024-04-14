@@ -1,36 +1,77 @@
 package nu.mine.mosher.net.ark_n2t.util;
 
-import java.util.random.RandomGenerator;
-import java.util.random.RandomGeneratorFactory;
+import lombok.RequiredArgsConstructor;
 
+import java.util.*;
+
+/**
+
+https://arks.org/specs/
+
+[/]ark:[/]<naan>/[<shoulder>]<blade><check>[parsing terminated by non-alphanumeric character, or end-of-string]
+
+This implementation does not deal with any of the following:
+    %-encoded octets
+    qualifiers
+    inflections
+    variants
+
+Lenient processing:
+    case insensitive (downcase everything)
+    remove all whitespace
+    remove all hyphens and hyphen-like characters (e.g., U+2010 to U+2015)
+
+*/
 public class ArkID {
-    public static final int DEFAULT_ID_LENGTH = 10;
-    public static final String DEFAULT_SAMPLE_SPACE = "bcdfghjkmnpqrstvwxz23456789";
-    public static final RandomGenerator DEFAULT_RNG = RandomGeneratorFactory.of("SecureRandom").create();
-
-
-
-    private final int length;
-    private final String sampleSpace;
-    private final RandomGenerator RNG;
-
-    public ArkID() {
-        this(DEFAULT_ID_LENGTH, DEFAULT_SAMPLE_SPACE, DEFAULT_RNG);
-    }
-
-    public ArkID(final int length, final String sampleSpace, final RandomGenerator RNG) {
-        this.length = length;
-        this.sampleSpace = sampleSpace;
-        this.RNG = RNG;
-    }
-
-    public String mint() {
-        final StringBuilder sb = new StringBuilder(this.length);
-        for (int i = 0; i < this.length; ++i) {
-            final int random = this.RNG.nextInt(this.sampleSpace.length());
-            final int cp = this.sampleSpace.codePointAt(random);
-            sb.appendCodePoint(cp);
+    @RequiredArgsConstructor
+    public static class Naan {
+        private final String s;
+        @Override
+        public String toString() {
+            return this.s;
         }
-        return sb.toString();
+    }
+
+    @RequiredArgsConstructor
+    public static class Shoulder {
+        private final String s;
+
+        @Override
+        public String toString() {
+            return this.s;
+        }
+    }
+
+    @RequiredArgsConstructor
+    public static class Blade {
+        private final String s;
+
+        @Override
+        public String toString() {
+            return this.s;
+        }
+    }
+
+    @RequiredArgsConstructor
+    public static class CheckDigit {
+        private final int codepoint;
+
+        @Override
+        public String toString() {
+            return new String(new int[]{this.codepoint}, 0, 1);
+        }
+
+        @Override
+        public boolean equals(final Object object) {
+            if (!(object instanceof final CheckDigit that)) {
+                return false;
+            }
+            return this.codepoint == that.codepoint;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.codepoint);
+        }
     }
 }
