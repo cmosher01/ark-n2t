@@ -1,0 +1,35 @@
+plugins {
+    id "io.freefair.lombok" version "6.5.1"
+    id 'war'
+}
+
+
+
+version = '1.0.0'
+
+group = 'nu.mine.mosher.net'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = uri('https://public:\u0067hp_fya6Kseu3XOBMg2icbg7f1LP6ZFYjj35v4Zj@maven.pkg.github.com/cmosher01/*')
+    }
+}
+
+dependencies {
+    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: 'latest.release'
+
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: 'latest.integration'
+    runtimeOnly group: 'nu.mine.mosher.io', name: 'adapt-slf4j-to-servlet', version: 'latest.release'
+
+    providedCompile group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '6.+'
+}
+
+
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of 17
+        vendor = JvmVendorSpec.ADOPTIUM
+    }
+}
