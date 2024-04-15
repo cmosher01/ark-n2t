@@ -8,6 +8,7 @@ import java.util.random.RandomGeneratorFactory;
 import static java.lang.Math.max;
 
 
+
 @RequiredArgsConstructor
 public class ArkMinter {
     public static final int DEFAULT_BLADE_LENGTH = 10;
@@ -28,10 +29,16 @@ public class ArkMinter {
         this(DEFAULT_BLADE_LENGTH, DEFAULT_SAMPLE_SPACE, DEFAULT_RNG);
     }
 
-    // generates a new <blade>
 
 
-    ArkID.Blade mintBlade() {
+    public int bladeLen() {
+        return this.lenBlade;
+    }
+
+    /**
+     * generates a new random <blade>
+     */
+    Ark.Blade mintBlade() {
         prime();
         val sb = new StringBuilder(this.lenBlade);
         for (int i = 0; i < this.lenBlade; ++i) {
@@ -39,10 +46,10 @@ public class ArkMinter {
             val cp = this.sampleSpace.codePointAt(random);
             sb.appendCodePoint(cp);
         }
-        return new ArkID.Blade(sb.toString());
+        return new Ark.Blade(sb.toString());
     }
 
-    ArkID.CheckDigit computeCheckDigit(final ArkID.Naan naan, final ArkID.Shoulder shoulder, final ArkID.Blade blade) {
+    Ark.CheckDigit computeCheckDigit(final Ark.Naan naan, final Ark.Shoulder shoulder, final Ark.Blade blade) {
         // implements the "Noid check digit algorithm"
         // https://metacpan.org/dist/Noid/view/noid
 
@@ -56,8 +63,10 @@ public class ArkMinter {
         }
         prod %= this.sampleSpace.length();
 
-        return new ArkID.CheckDigit(this.sampleSpace.codePointAt(prod));
+        return new Ark.CheckDigit(this.sampleSpace.codePointAt(prod));
     }
+
+
 
     private synchronized void prime() {
         if (!this.primed) {

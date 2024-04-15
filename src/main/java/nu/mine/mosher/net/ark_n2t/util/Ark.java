@@ -22,7 +22,8 @@ Lenient processing:
     remove all hyphens and hyphen-like characters (e.g., U+2010 to U+2015)
 
 */
-public class ArkID {
+@RequiredArgsConstructor
+public class Ark {
     @RequiredArgsConstructor
     public static class Naan {
         private final String s;
@@ -34,6 +35,8 @@ public class ArkID {
 
     @RequiredArgsConstructor
     public static class Shoulder {
+        public static final Shoulder GLOBAL = new Shoulder("");
+
         private final String s;
 
         @Override
@@ -74,4 +77,8 @@ public class ArkID {
             return Objects.hashCode(this.codepoint);
         }
     }
+
+
+
+    private final NamespaceSubdivision ns;
 }

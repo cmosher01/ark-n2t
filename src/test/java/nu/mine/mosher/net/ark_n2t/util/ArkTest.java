@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ArkIDTest {
+public class ArkTest {
     @Test
     void nominal() {
         final ArkMinter uut = new ArkMinter();
-        final ArkID.Blade actual = uut.mintBlade();
+        final Ark.Blade actual = uut.mintBlade();
         System.out.println("ArkMinter.mintBlade() = "+actual);
         assertEquals(ArkMinter.DEFAULT_BLADE_LENGTH, actual.toString().length());
     }
@@ -17,24 +17,24 @@ public class ArkIDTest {
     @Test
     void checkDigit() {
         final ArkMinter uut = new ArkMinter(7, "0123456789bcdfghjkmnpqrstvwxz", ArkMinter.DEFAULT_RNG);
-        val naan = new ArkID.Naan("13030");
-        val shoulder = new ArkID.Shoulder("");
-        val blade = new ArkID.Blade("xf93gt2");
+        val naan = new Ark.Naan("13030");
+        val shoulder = new Ark.Shoulder("");
+        val blade = new Ark.Blade("xf93gt2");
 
         val actual = uut.computeCheckDigit(naan, shoulder, blade);
 
-        assertEquals(new ArkID.CheckDigit('q'), actual);
+        assertEquals(new Ark.CheckDigit('q'), actual);
     }
 
     @Test
     void checkDigitWithShoulder() {
         final ArkMinter uut = new ArkMinter(4, "0123456789bcdfghjkmnpqrstvwxz", ArkMinter.DEFAULT_RNG);
-        val naan = new ArkID.Naan("13030");
-        val shoulder = new ArkID.Shoulder("xf9");
-        val blade = new ArkID.Blade("3gt2");
+        val naan = new Ark.Naan("13030");
+        val shoulder = new Ark.Shoulder("xf9");
+        val blade = new Ark.Blade("3gt2");
 
         val actual = uut.computeCheckDigit(naan, shoulder, blade);
 
-        assertEquals(new ArkID.CheckDigit('q'), actual);
+        assertEquals(new Ark.CheckDigit('q'), actual);
     }
 }
