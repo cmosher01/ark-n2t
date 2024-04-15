@@ -53,12 +53,12 @@ public class ArkMinter {
         // implements the "Noid check digit algorithm"
         // https://metacpan.org/dist/Noid/view/noid
 
-        val s = ""+naan+"/"+shoulder+blade;
+        val s = "/"+naan+"/"+shoulder+blade;
 
         var prod = 0;
-        for (int pos = 1; pos <= s.length(); ++pos) {
-            val _char = s.codePointAt(pos-1);
-            var ord = max(0,this.sampleSpace.indexOf(_char));
+        for (int pos = 1; pos < s.length(); ++pos) {
+            val chr = s.codePointAt(pos);
+            val ord = max(0,this.sampleSpace.indexOf(chr));
             prod += pos*ord;
         }
         prod %= this.sampleSpace.length();

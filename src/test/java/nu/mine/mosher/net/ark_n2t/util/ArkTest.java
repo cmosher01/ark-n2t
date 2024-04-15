@@ -37,4 +37,19 @@ public class ArkTest {
 
         assertEquals(new Ark.CheckDigit('q'), actual);
     }
+
+    @Test
+    void removeAllWhitespaceAndHyphens() {
+        val input =
+            "/ark:/1234"+
+            Character.toString(0x000A)+
+            "5/z9 tst-t"+
+            Character.toString(0x2002)+
+            "st"+
+            Character.toString(0x2014)+
+            "k/foo/bar.v2.jpg?info";
+        val expected = "/ark:/12345/z9tsttstk/foo/bar.v2.jpg?info";
+        val actual = CharUtil.removeAllWhitespaceAndHyphens(input);
+        assertEquals(expected, actual);
+    }
 }
