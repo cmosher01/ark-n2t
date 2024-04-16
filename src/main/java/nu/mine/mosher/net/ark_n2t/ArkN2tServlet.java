@@ -83,7 +83,9 @@ public final class ArkN2tServlet extends HttpServlet {
 
         val sShoulderBladeChecksum = matcher.group(2);
 
-        if (!this.ns.isIdentifiedBy(Ark.Shoulder.of(sShoulderBladeChecksum))) {
+        val sShoulder = Ark.Shoulder.of(sShoulderBladeChecksum);
+        log.info("Received shoulder: {}", sShoulder);
+        if (!this.ns.isIdentifiedBy(sShoulder)) {
             log.error("Received incorrect shoulder on base name: {}", sShoulderBladeChecksum);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;

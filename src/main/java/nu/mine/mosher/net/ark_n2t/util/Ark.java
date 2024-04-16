@@ -85,7 +85,7 @@ public class Ark {
 
         @Override
         public boolean equals(final Object object) {
-            if (!(object instanceof Blade that)) {
+            if (!(object instanceof Shoulder that)) {
                 return false;
             }
             return Objects.equals(this.s, that.s);
