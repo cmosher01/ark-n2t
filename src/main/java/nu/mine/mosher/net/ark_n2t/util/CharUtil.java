@@ -4,8 +4,18 @@ import lombok.NonNull;
 import lombok.val;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public final class CharUtil {
+    public static String getShoulderOf(final String s) {
+        val pat = Pattern.compile("^(\\p{Alpha}+\\p{Digit}).*$");
+        val mat = pat.matcher(s);
+        if (!mat.matches()) {
+            return "";
+        }
+        return mat.group(1);
+    }
+
     public static String removeAllWhitespaceAndHyphens(@NonNull final String s) {
         val sb = new StringBuilder(s.length());
         s

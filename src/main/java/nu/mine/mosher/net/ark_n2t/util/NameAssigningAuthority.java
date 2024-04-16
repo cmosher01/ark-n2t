@@ -10,4 +10,21 @@ public class NameAssigningAuthority {
     public NameAssigningAuthority(final Ark.Naan number) {
         this(number, new ArkMinter());
     }
+
+    @Override
+    public String toString() {
+        throw new IllegalStateException();
+    }
+
+    public Ark.Naan number() {
+        return this.number;
+    }
+
+    public ArkMinter minter() {
+        return this.minter;
+    }
+
+    public boolean isIdentifiedBy(final Ark.Naan naan) {
+        return naan.equals(this.number);
+    }
 }

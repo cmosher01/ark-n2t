@@ -49,7 +49,7 @@ public class ArkMinter {
         return new Ark.Blade(sb.toString());
     }
 
-    Ark.CheckDigit computeCheckDigit(final Ark.Naan naan, final Ark.Shoulder shoulder, final Ark.Blade blade) {
+    public Ark.CheckDigit computeCheckDigit(final Ark.Naan naan, final Ark.Shoulder shoulder, final Ark.Blade blade) {
         // implements the "Noid check digit algorithm"
         // https://metacpan.org/dist/Noid/view/noid
 
