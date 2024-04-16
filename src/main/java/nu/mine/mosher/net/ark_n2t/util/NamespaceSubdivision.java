@@ -28,12 +28,12 @@ public class NamespaceSubdivision {
         return !this.shoulder.exists() || this.shoulder.equals(shoulder);
     }
 
-    public Ark.Blade removeShoulderFrom(final String baseName) {
+    public String removeShoulderFrom(final String sShoulderBladeChecksum) {
         if (!this.shoulder.exists()) {
             // we have a "global" ark (we don't use any shoulder)
-            return new Ark.Blade(baseName);
+            return sShoulderBladeChecksum;
         }
 
-        return this.shoulder.removeFrom(baseName);
+        return this.shoulder.removeFrom(sShoulderBladeChecksum);
     }
 }

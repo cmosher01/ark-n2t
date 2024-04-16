@@ -15,6 +15,19 @@ public class ArkMinter {
     public static final String DEFAULT_SAMPLE_SPACE = "bcdfghjkmnpqrstvwxz23456789";
     public static final RandomGenerator DEFAULT_RNG = RandomGeneratorFactory.of("SecureRandom").create();
 
+    public boolean couldHaveMinted(final String sBlade) {
+        if (sBlade.length() != this.lenBlade) {
+            return false;
+        }
+
+        for (int i = 0; i < sBlade.length(); ++i) {
+            if (!this.sampleSpace.contains(sBlade.substring(i, i+1))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
 
     private final int lenBlade;
@@ -31,8 +44,8 @@ public class ArkMinter {
 
 
 
-    public int bladeLen() {
-        return this.lenBlade;
+    public String sampleSpace() {
+        return this.sampleSpace;
     }
 
     /**
@@ -49,24 +62,11 @@ public class ArkMinter {
         return new Ark.Blade(sb.toString());
     }
 
-    public Ark.CheckDigit computeCheckDigit(final Ark.Naan naan, final Ark.Shoulder shoulder, final Ark.Blade blade) {
-        // implements the "Noid check digit algorithm"
-        // https://metacpan.org/dist/Noid/view/noid
-
+    Ark.CheckDigit computeCheckDigit(final Ark.Naan naan, final Ark.Shoulder shoulder, final Ark.Blade blade) {
         val s = "/"+naan+"/"+shoulder+blade;
-
-        var prod = 0;
-        for (int pos = 1; pos < s.length(); ++pos) {
-            val chr = s.codePointAt(pos);
-            val ord = max(0,this.sampleSpace.indexOf(chr));
-            prod += pos*ord;
-        }
-        prod %= this.sampleSpace.length();
-
-        return new Ark.CheckDigit(this.sampleSpace.codePointAt(prod));
+        val c = CharUtil.checksum(s, this.sampleSpace);
+        return new Ark.CheckDigit(c);
     }
-
-
 
     private synchronized void prime() {
         if (!this.primed) {

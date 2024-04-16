@@ -6,7 +6,24 @@ import lombok.val;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static java.lang.Character.isWhitespace;
+import static java.lang.Math.max;
+
 public final class CharUtil {
+    // implements the "Noid check digit algorithm"
+    // https://metacpan.org/dist/Noid/view/noid
+    // input: "/"+naan+"/"+shoulder+blade
+    public static int checksum(final String s, final String sampleSpace) {
+        var prod = 0;
+        for (int pos = 1; pos < s.length(); ++pos) {
+            val chr = s.codePointAt(pos);
+            val ord = max(0, sampleSpace.indexOf(chr));
+            prod += pos*ord;
+        }
+        prod %= sampleSpace.length();
+        return sampleSpace.codePointAt(prod);
+    }
+
     public static String getShoulderOf(final String s) {
         val pat = Pattern.compile("^(\\p{Alpha}+\\p{Digit}).*$");
         val mat = pat.matcher(s);
@@ -19,10 +36,10 @@ public final class CharUtil {
     public static String removeAllWhitespaceAndHyphens(@NonNull final String s) {
         val sb = new StringBuilder(s.length());
         s
-                .codePoints()
-                .filter(c -> !Character.isWhitespace(c))
-                .filter(c -> !isDash(c))
-                .forEach(sb::appendCodePoint);
+            .codePoints()
+            .filter(c -> !isWhitespace(c))
+            .filter(c -> !isDash(c))
+            .forEach(sb::appendCodePoint);
         return sb.toString();
     }
 

@@ -69,11 +69,11 @@ public class Ark {
             return !this.s.isEmpty();
         }
 
-        public Blade removeFrom(final String baseName) {
-            if (!baseName.startsWith(this.s)) {
+        public String removeFrom(final String sShoulderBladeChecksum) {
+            if (!sShoulderBladeChecksum.startsWith(this.s)) {
                 throw new IllegalStateException("Wrong shoulder; expected: "+this.s);
             }
-            return new Blade(baseName.substring(this.s.length()));
+            return sShoulderBladeChecksum.substring(this.s.length());
         }
 
         private final String s;
@@ -120,6 +120,7 @@ public class Ark {
         }
     }
 
+// not needed, so far:
 //    @RequiredArgsConstructor
 //    public static class BaseName {
 //        private final Shoulder shoulder;

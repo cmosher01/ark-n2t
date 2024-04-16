@@ -81,17 +81,35 @@ public final class ArkN2tServlet extends HttpServlet {
             return;
         }
 
-        val baseName = matcher.group(2);
-        if (!this.ns.isIdentifiedBy(Ark.Shoulder.of(baseName))) {
-            log.error("Received incorrect shoulder on base name: {}", baseName);
+        val sShoulderBladeChecksum = matcher.group(2);
+
+        if (!this.ns.isIdentifiedBy(Ark.Shoulder.of(sShoulderBladeChecksum))) {
+            log.error("Received incorrect shoulder on base name: {}", sShoulderBladeChecksum);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
-        val blade = this.ns.removeShoulderFrom(baseName);
-        // TODO verify checksum received
+        val sBladeChecksum = this.ns.removeShoulderFrom(sShoulderBladeChecksum);
+        val sCheckActual = sBladeChecksum.substring(sBladeChecksum.length()-1);
+        val sBlade = sBladeChecksum.substring(0, sBladeChecksum.length()-1);
 
-        val ark = new Ark(this.ns, blade);
+        if (!this.ns.authority().minter().couldHaveMinted(sBlade)) {
+            log.error("Received invalid ARK (blade not from this minter): {}", sBlade);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        val prefix = "/"+this.ns.authority().number()+"/"+this.ns.shoulder();
+        val sCheckExpected = new String(new int[]{CharUtil.checksum(prefix+sBlade, this.ns.authority().minter().sampleSpace())},0,1);
+        if (!sCheckActual.equals(sCheckExpected)) {
+            log.error("Received incorrect checksum. actual=\"{}\", expected=\"{}\"", sCheckActual, sCheckExpected);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        val ark = new Ark(this.ns, new Ark.Blade(sBlade));
+
+
 
         try (val out = response.getWriter()) {
             out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -100,7 +118,7 @@ public final class ArkN2tServlet extends HttpServlet {
             out.println("    <title>ArkN2tServlet</title>");
             out.println("  </head>");
             out.println("  <body>");
-            out.println("    <p>normalized ARK: <![CDATA["+ark+"]]></p>");
+            out.println("    <p>normalized ark:<![CDATA["+ark+"]]></p>");
             out.println("  </body>");
             out.println("</html>");
             out.flush();
