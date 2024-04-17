@@ -22,7 +22,7 @@ dependencies {
     implementation group: 'org.slf4j', name: 'slf4j-api', version: 'latest.integration'
     runtimeOnly group: 'nu.mine.mosher.io', name: 'adapt-slf4j-to-servlet', version: 'latest.release'
 
-    providedCompile group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '6.+'
+    providedCompile group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '5.+'
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: 'latest.release'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine'

@@ -21,7 +21,7 @@ RUN ./gradlew -i build
 
 
 
-FROM tomcat:jdk17-temurin-jammy AS run
+FROM tomcat:10-jdk17-temurin-jammy AS run
 
 USER root
 ENV HOME /root

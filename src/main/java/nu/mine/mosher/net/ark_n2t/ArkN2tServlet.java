@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import nu.mine.mosher.net.ark_n2t.util.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -17,12 +18,14 @@ public final class ArkN2tServlet extends HttpServlet {
 
     @Override
     public void init(final ServletConfig config) throws ServletException {
+        log.info("-------- HTTP servlet initialization --------");
         super.init(config);
 
         val naan = getNaanFromEnv();
         val ns = getShoulderFromEnv();
 
         this.ns = new NamespaceSubdivision(new NameAssigningAuthority(naan), ns);
+        log.info("-------- end of HTTP servlet initialization --------");
     }
 
     private static Ark.Shoulder getShoulderFromEnv() {
@@ -56,6 +59,10 @@ public final class ArkN2tServlet extends HttpServlet {
     public void doGet(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response) {
         val uriRaw = Optional.ofNullable(request.getRequestURI()).orElse("");
         log.info("URI: \"{}\"", uriRaw);
+
+        if (uriRaw.equalsIgnoreCase("/health")) {
+            return;
+        }
 
         val uriClean = CharUtil.removeAllWhitespaceAndHyphens(uriRaw);
         if (!uriClean.equals(uriRaw)) {
@@ -113,6 +120,8 @@ public final class ArkN2tServlet extends HttpServlet {
 
 
 
+        response.setContentType("application/xhtml+xml;charset=UTF-8");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         try (val out = response.getWriter()) {
             out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
