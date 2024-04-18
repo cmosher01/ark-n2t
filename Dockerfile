@@ -27,5 +27,7 @@ USER root
 ENV HOME /root
 WORKDIR $HOME
 
+RUN apt-get update && apt-get install -y sqlite
+
 COPY --from=build /root/src/main/tomcat/conf /usr/local/tomcat/conf
 COPY --from=build /root/build/libs/*.war /usr/local/tomcat/webapps/ROOT.war

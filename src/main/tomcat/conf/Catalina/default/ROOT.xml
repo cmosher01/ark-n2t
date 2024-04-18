@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context crossContext="true">
     <Resources allowLinking="true" trackLockedFiles="true"/>
+    <Resource
+        name="jdbc/db"
+        type="javax.sql.DataSource"
+        driverClassName="org.sqlite.JDBC"
+        url="jdbc:sqlite:/var/lib/ark-n2t/ark-n2t.sqlite"
+        maxTotal="32"
+        maxIdle="4"
+        maxWaitMillis="10000"
+    />
 </Context>

@@ -1,5 +1,6 @@
 ---
 volumes:
+  "tomcat_db":
   "tomcat_work":
   "tomcat_temp":
 
@@ -29,7 +30,13 @@ services:
 
   "tomcat":
     build: "./"
+    environment:
+      "ARK_NAAN": "${ARK_NAAN}"
+      "ARK_NS": "${ARK_NS}"
     volumes:
+      - type: volume
+        source: "tomcat_db"
+        target: "/var/lib/ark-n2t"
       - type: volume
         source: "tomcat_work"
         target: "/usr/local/tomcat/work"
