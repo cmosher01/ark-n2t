@@ -11,7 +11,7 @@ import static java.lang.Math.max;
 
 public final class CharUtil {
     // implements the "Noid check digit algorithm"
-    // https://metacpan.org/dist/Noid/view/noid
+    // https://metacpan.org/dist/Noid/view/noid#NOID-CHECK-DIGIT-ALGORITHM
     // input: "/"+naan+"/"+shoulder+blade
     public static int checksum(final String s, final String sampleSpace) {
         var prod = 0;

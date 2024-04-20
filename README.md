@@ -1,5 +1,10 @@
 # ark-n2t
 
+Copyright © 2024, Christopher Alan Mosher, New York, New York, USA, <cmosher01@gmail.com>.
+
+[![License](https://img.shields.io/github/license/cmosher01/Gedcom-XY-Editor.svg)](https://www.gnu.org/licenses/gpl.html)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CVSSQ2BWDCKQ2)
+
 ARK resolver servlet.
 
 
@@ -19,7 +24,10 @@ ARK resolver servlet.
 
 `{datastore}` is a database, such as a SQL relational database.
 
+`{checksum-algorithm}` takes as input a `{NAAN}`, `{shoulder}`, `{blade}`, and
+`{alphabet}`; and returns a single character from `{alphabet}`.
 
+`{alphabet}` is an ordered list of alphanumeric characters.
 
 ## Actions
 
@@ -32,12 +40,12 @@ ARK resolver servlet.
 #### Mint
 * Given a `{URL}`, generate a random-unique `{ARK}` (with given `{NAAN}`,
   `{shoulder}`, `{alphabet}`, `{blade-length}`, and `{checksum-algorithm}`),
-  and store them (liked together) in the `{datastore}`.
+  and store them (linked together) in the `{datastore}`.
 
 #### Analyze
-* Find all `{NAAN}`'s and their associated `{shoulder}`'s in the `{datastore}`.
-* Verify all `{checksum}`'s in the `{datastore}`
-  (given an `{alphabet}`, `{blade-length}`, and `{checksum-algorithm}`).
+* Given an `{ARK}` from the `{datastore}`, get its `{NAAN}` or `{shoulder}`,
+  or verify its `{checksum}` (using its associated
+  `{alphabet}` and `{checksum-algorithm}`).
 
 
 
@@ -52,12 +60,17 @@ Trivial SQL datastore:
 ```SQL
 CREATE TABLE Ark (
     ark VARCHAR(256),
-    shoulder INTEGER,
     url VARCHAR(2048)
 )
 ```
 
 where:
 * `ark` is the `{ARK}` (could be stored either with or without `ark:` label),
-* `shoulder` is a boolean indicating whether the `{ARK}` has a `{shoulder}` or not, and
 * `url` is the `{URL}`.
+
+Complete representation would also need these pieces of information,
+which would apply to a set of Ark rows:
+
+* Whether the `{ARK}`'s have a `{shoulder}` or not.
+* Which `{checksum-algorithm}` was used to generate the `{checksum}`'s.
+* The `{alphabet}` used in minting the `{ARK}`'s.
