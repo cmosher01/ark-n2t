@@ -24,6 +24,11 @@ public final class CharUtil {
         return sampleSpace.codePointAt(prod);
     }
 
+    // string from codepoint
+    public static String scp(final int codepoint) {
+        return new String(new int[] {codepoint}, 0, 1);
+    }
+
     public static String getShoulderOf(final String s) {
         val pat = Pattern.compile("^(\\p{Alpha}+\\p{Digit}).*$");
         val mat = pat.matcher(s);

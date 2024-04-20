@@ -4,6 +4,8 @@ import lombok.*;
 
 import java.util.*;
 
+import static nu.mine.mosher.net.ark_n2t.util.CharUtil.scp;
+
 /**
 
  <a href="https://arks.org/specs/">https://arks.org/specs/</a>
@@ -95,6 +97,10 @@ public class Ark {
         public int hashCode() {
             return Objects.hashCode(this.s);
         }
+
+        public int length() {
+            return this.s.length();
+        }
     }
 
     @RequiredArgsConstructor
@@ -153,7 +159,7 @@ public class Ark {
 
         @Override
         public String toString() {
-            return new String(new int[]{this.codepoint}, 0, 1);
+            return scp(this.codepoint);
         }
 
         @Override
@@ -173,6 +179,10 @@ public class Ark {
     private final NamespaceSubdivision ns;
     private final Blade blade;
 
+    /**
+     *
+     * @return ark in this form: {naan}/[{shoulder}]{blade}{check-digit}
+     */
     @Override
     public String toString() {
         val sb = new StringBuilder(256);

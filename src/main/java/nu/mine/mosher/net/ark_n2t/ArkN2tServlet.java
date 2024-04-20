@@ -7,9 +7,20 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import nu.mine.mosher.net.ark_n2t.util.*;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
+
+import static nu.mine.mosher.net.ark_n2t.util.CharUtil.scp;
 
 @WebServlet("/*")
 @Slf4j
@@ -109,7 +120,7 @@ public final class ArkN2tServlet extends HttpServlet {
         }
 
         val prefix = "/"+this.ns.authority().number()+"/"+this.ns.shoulder();
-        val sCheckExpected = new String(new int[]{CharUtil.checksum(prefix+sBlade, this.ns.authority().minter().sampleSpace())},0,1);
+        val sCheckExpected = scp(CharUtil.checksum(prefix+sBlade, this.ns.authority().minter().sampleSpace()));
         if (!sCheckActual.equals(sCheckExpected)) {
             log.error("Received incorrect checksum. actual=\"{}\", expected=\"{}\"", sCheckActual, sCheckExpected);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -118,21 +129,119 @@ public final class ArkN2tServlet extends HttpServlet {
 
         val ark = new Ark(this.ns, new Ark.Blade(sBlade));
 
+        val optUri = resolve(ark);
+        if (optUri.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
 
+        val uri = optUri.get().toASCIIString();
 
-        response.setContentType("application/xhtml+xml;charset=UTF-8");
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        try (val out = response.getWriter()) {
-            out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
-            out.println("  <head>");
-            out.println("    <title>ArkN2tServlet</title>");
-            out.println("  </head>");
-            out.println("  <body>");
-            out.println("    <p>normalized ark:<![CDATA["+ark+"]]></p>");
-            out.println("  </body>");
-            out.println("</html>");
-            out.flush();
+//        response.setContentType("application/xhtml+xml;charset=UTF-8");
+//        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+//        try (val out = response.getWriter()) {
+//            out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+//            out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+//            out.println("  <head>");
+//            out.println("    <title>ArkN2tServlet</title>");
+//            out.println("  </head>");
+//            out.println("  <body>");
+//            out.println("    <p>ark:<![CDATA["+ark.toString()+"]]></p>");
+//            out.println("    <p><a href=\""+uri+"\">"+uri+"</link></p>");
+//            out.println("  </body>");
+//            out.println("</html>");
+//        }
+
+        if (System.getenv("ARK_ACCEL") != null) {
+            response.addHeader("X-Accel-Redirect", uri);
+        } else {
+            response.sendRedirect(uri);
+        }
+    }
+
+    private Ark purl(final URI uri) throws SQLException {
+        return find(uri).orElse(mint(uri));
+    }
+
+    /**
+     * Mint a new ark for the given URL and add the mapping to the database.
+     * Does not check if a mapping already exists.
+     *
+     * @param uri
+     * @return ark in this form: {naan}/[{shoulder}]{blade}{check-digit}
+     */
+    private Ark mint(final URI uri) throws SQLException {
+        val ark = this.ns.mint();
+        try (
+            val db = db();
+            val st = db.prepareStatement("INSERT INTO Ark (ark, shoulder, url) VALUES (?, ?, ?)")) {
+            st.setString(1, ark.toString());
+            st.setInt(2, this.ns.shoulder().length());
+            st.setString(3, uri.toASCIIString());
+            st.executeUpdate();
+        }
+        return ark;
+    }
+
+    /**
+     * Looks up the given ARK in the database, and returns its URL.
+     * Returns empty string if not found.
+     * In the case where database contains more than one record for the given
+     * ark, an arbitrary one is returned.
+     *
+     * @param ark in this form: {naan}/[{shoulder}]{blade}{check-digit}
+     * @return uri
+     */
+    private Optional<URI> resolve(final Ark ark) throws SQLException, URISyntaxException {
+        try (
+            val db = db();
+            val st = db.prepareStatement("SELECT url FROM Ark WHERE ark = ?")) {
+            st.setString(1, ark.toString());
+            try (val rs = st.executeQuery()) {
+                if (rs.next()) {
+                    val optStrUri = Optional.ofNullable(rs.getString("url"));
+                    if (optStrUri.isEmpty()) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(new URI(optStrUri.get()));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Ark> find(final URI uri) throws SQLException {
+        try (
+            val db = db();
+            val st = db.prepareStatement("SELECT ark, shoulder FROM Ark WHERE url = ?")) {
+            st.setString(1, uri.toASCIIString());
+            try (val rs = st.executeQuery()) {
+                if (rs.next()) {
+                    val optStrArk = Optional.ofNullable(rs.getString("ark"));
+                    if (optStrArk.isEmpty()) {
+                        return Optional.empty();
+                    }
+                    val ark = optStrArk.get();
+                    val lenShoulder = rs.getInt("shoulder");
+                    val sShoulder = ark.substring(0, lenShoulder);
+                    if (!this.ns.isIdentifiedBy(new Ark.Shoulder(sShoulder))) {
+                        log.error("Shoulder in database not handled by this servlet: {}", sShoulder);
+                        return Optional.empty();
+                    }
+                    return this.ns.parseArk(ark.substring(lenShoulder));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static Connection db() {
+        try {
+            val ctx = new InitialContext();
+            val ds = (DataSource)ctx.lookup("java:/comp/env/jdbc/db");
+            return ds.getConnection();
+        } catch (final Exception wrap) {
+            throw new IllegalStateException(wrap);
         }
     }
 }

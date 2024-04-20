@@ -2,6 +2,8 @@ package nu.mine.mosher.net.ark_n2t.util;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 public class NamespaceSubdivision {
     private final NameAssigningAuthority authority;
@@ -35,5 +37,15 @@ public class NamespaceSubdivision {
         }
 
         return this.shoulder.removeFrom(sShoulderBladeChecksum);
+    }
+
+    public Ark mint() {
+        return new Ark(this, authority().minter().mintBlade());
+    }
+
+    public Optional<Ark> parseArk(final String s) {
+        // TODO
+
+        return Optional.empty();
     }
 }
