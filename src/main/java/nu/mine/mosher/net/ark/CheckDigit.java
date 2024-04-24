@@ -1,6 +1,5 @@
 package nu.mine.mosher.net.ark;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;

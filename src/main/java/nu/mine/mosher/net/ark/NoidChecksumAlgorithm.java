@@ -1,7 +1,6 @@
 package nu.mine.mosher.net.ark;
 
-import lombok.NonNull;
-import lombok.val;
+import lombok.*;
 
 import static java.lang.Math.max;
 

@@ -1,11 +1,8 @@
 package nu.mine.mosher.net.ark;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
+import lombok.*;
 
-import java.util.random.RandomGenerator;
-import java.util.random.RandomGeneratorFactory;
+import java.util.random.*;
 
 @RequiredArgsConstructor
 public final class Minter {

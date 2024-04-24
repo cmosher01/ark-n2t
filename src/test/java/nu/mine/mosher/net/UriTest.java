@@ -1,11 +1,9 @@
 package nu.mine.mosher.net;
 
 import lombok.val;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

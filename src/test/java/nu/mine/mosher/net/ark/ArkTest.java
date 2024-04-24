@@ -1,10 +1,6 @@
 package nu.mine.mosher.net.ark;
 
 import lombok.val;
-import nu.mine.mosher.net.ark.*;
-import nu.mine.mosher.net.ark.Ark;
-import nu.mine.mosher.net.ark_n2t.util.ArkMinter;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static nu.mine.mosher.net.ark.Ark.normalize;
@@ -14,10 +10,10 @@ public class ArkTest {
     @Test
     void nominal() {
         val BN = Alphabet.BETA_NUMERIC;
-        val uut = new Minter(new Shoulder("g8", BN), ArkMinter.DEFAULT_BLADE_LENGTH, BN, Minter.DEFAULT_RNG);
+        val uut = new Minter(new Shoulder("g8", BN), 10, BN, Minter.DEFAULT_RNG);
         val actual = uut.mint();
         System.out.println("Minter.mint() = "+actual);
-        assertEquals(ArkMinter.DEFAULT_BLADE_LENGTH+2, actual.toString().length());
+        assertEquals(12, actual.toString().length());
     }
 
     @Test

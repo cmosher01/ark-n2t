@@ -1,15 +1,10 @@
 package nu.mine.mosher.net.ark;
 
-import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
+import lombok.*;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static java.lang.Character.isWhitespace;

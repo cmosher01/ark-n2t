@@ -7,14 +7,11 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import nu.mine.mosher.net.ark.*;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import javax.naming.*;
 import javax.sql.DataSource;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.*;
+import java.net.*;
+import java.sql.*;
+import java.util.Optional;
 
 
 @WebServlet("/*")
