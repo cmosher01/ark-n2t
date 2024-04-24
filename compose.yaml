@@ -33,6 +33,7 @@ services:
     environment:
       "ARK_NAAN": "${ARK_NAAN}"
       "ARK_NS": "${ARK_NS}"
+      "ARK_ACCEL": true
     volumes:
       - type: volume
         source: "tomcat_db"

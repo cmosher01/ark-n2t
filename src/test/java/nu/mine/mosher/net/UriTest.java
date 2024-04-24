@@ -1,4 +1,4 @@
-package nu.mine.mosher.net.ark_n2t.util;
+package nu.mine.mosher.net;
 
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
