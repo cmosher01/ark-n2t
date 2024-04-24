@@ -40,6 +40,11 @@ public final class Ark {
         }
     }
 
+    public static Ark build(@NonNull final Naan naan, @NonNull final ShoulderBlade shoulderBlade, @NonNull final ChecksumAlgorithm check, @NonNull final Alphabet alphabet) {
+        val checkDigit = check.checksum(naan, shoulderBlade, alphabet);
+        return new Ark(naan, shoulderBlade, checkDigit, checkDigit);
+    }
+
     public boolean hasValidCheckDigit() {
         return this.checkDigitActual.equals(this.checkDigitExpected);
     }

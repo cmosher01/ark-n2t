@@ -14,11 +14,12 @@ import java.sql.*;
 import java.util.Optional;
 
 
-@WebServlet("/*")
+@WebServlet("/resolve/*")
 @Slf4j
 public final class ArkN2tServlet extends HttpServlet {
     private final Alphabet alphabet = Alphabet.BETA_NUMERIC; // TODO env var for alphabet
     private final ChecksumAlgorithm check = new NoidChecksumAlgorithm(); // TODO env var for algorithm
+    private Minter minter;
     private Naan naan;
     private Shoulder shoulder;
 
@@ -28,6 +29,7 @@ public final class ArkN2tServlet extends HttpServlet {
         super.init(config);
         getNaanFromEnv();
         getShoulderFromEnv();
+        this.minter = new Minter(this.shoulder, 10, this.alphabet, Minter.DEFAULT_RNG);
         log.info("-------- end of HTTP servlet initialization --------");
     }
 
@@ -62,17 +64,24 @@ public final class ArkN2tServlet extends HttpServlet {
         super.doPost(request, response);
     }
 
+    private static String uri(final HttpServletRequest request) {
+        // requires proxy to supply this header, which allows us to get the
+        // query string in the case where it is a single question mark
+        var uri = Optional.ofNullable(request.getHeader("x-forwarded-uri"));
+        if (uri.isPresent()) {
+            return uri.get();
+        }
+
+        return
+            Optional.ofNullable(request.getPathInfo()).orElse("")+
+            Optional.ofNullable(request.getQueryString()).orElse("");
+    }
+
     @Override
     @SneakyThrows
     public void doGet(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response) {
-        val uriRaw = Optional.ofNullable(request.getRequestURI()).orElse("");
+        val uriRaw = uri(request);
         log.info("URI: \"{}\"", uriRaw);
-
-        if (uriRaw.equalsIgnoreCase("/health")) {
-            return;
-        }
-
-
 
         val optArk = Ark.parse(uriRaw, this.alphabet, this.check);
         if (optArk.isEmpty()) {
@@ -133,18 +142,16 @@ public final class ArkN2tServlet extends HttpServlet {
      * @param uri
      * @return ark in this form: {naan}/[{shoulder}]{blade}{check-digit}
      */
-//    private Ark mint(final URI uri) throws SQLException {
-//        val ark = this.shoulder.mint();
-//        try (
-//            val db = db();
-//            val st = db.prepareStatement("INSERT INTO Ark (ark, shoulder, url) VALUES (?, ?, ?)")) {
-//            st.setString(1, ark.toString());
-//            st.setInt(2, this.shoulder.shoulder().length());
-//            st.setString(3, uri.toASCIIString());
-//            st.executeUpdate();
-//        }
-//        return ark;
-//    }
+    private Ark mint(@NonNull final URI uri) throws SQLException, NamingException {
+        val ark = Ark.build(this.naan, this.minter.mint(), this.check, this.alphabet);
+        try (val db = db(); val st = db.prepareStatement(
+            "INSERT INTO Ark (ark, url) VALUES (?, ?)")) {
+            st.setString(1, ark.toString());
+            st.setString(2, uri.toASCIIString());
+            st.executeUpdate();
+        }
+        return ark;
+    }
 
     /**
      * Looks up the given ARK in the database, and returns its URL.
@@ -155,11 +162,10 @@ public final class ArkN2tServlet extends HttpServlet {
      * @param ark in this form: {naan}/[{shoulder}]{blade}{check-digit}
      * @return uri
      */
-    private Optional<URI> resolve(final Ark ark) throws SQLException, URISyntaxException, NamingException {
+    private Optional<URI> resolve(@NonNull final Ark ark) throws SQLException, URISyntaxException, NamingException {
         log.info("Will try to resolve ark: \"{}\"", ark.toString());
-        try (
-            val db = db();
-            val st = db.prepareStatement("SELECT url FROM Ark WHERE ark = ?")) {
+        try (val db = db(); val st = db.prepareStatement(
+            "SELECT url FROM Ark WHERE ark = ?")) {
             st.setString(1, ark.toString());
             try (val rs = st.executeQuery()) {
                 if (rs.next()) {
