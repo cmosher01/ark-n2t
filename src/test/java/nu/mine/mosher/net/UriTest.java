@@ -59,4 +59,40 @@ public class UriTest {
         val s = "http://example.com/a"+gclef+"b/p.jpg";
         assertEquals("http://example.com/a%F0%9D%84%9Eb/p.jpg", new URI(s).toASCIIString());
     }
+
+    @Test
+    void max() throws URISyntaxException {
+        val gclef = new String(new int[] {0x1D11E}, 0, 1);
+        URI uri = new URI("http://m%3Ae:fido@www.example.com:8080/the/ignore/../pa" + gclef + "th/t%2Fo/./index.html?f%3Doo=b+r&a=1&a=x@2&b=&c&d=d#pl%25ace");
+        dump(uri);
+        uri = new URI(uri.toASCIIString());
+        dump(uri);
+        uri = uri.normalize();
+        dump(uri);
+        assertEquals("http://m%3Ae:fido@www.example.com:8080/the/pa%F0%9D%84%9Eth/t%2Fo/index.html?f%3Doo=b+r&a=1&a=x@2&b=&c&d=d#pl%25ace", uri.toASCIIString());
+    }
+
+    private static void dump(final URI uri) {
+        d(uri.toString(), "string");
+        d(uri.toASCIIString(), "ascii string");
+        d(uri.getScheme(), "scheme");
+        d(uri.getUserInfo(), "user-info");
+        d(uri.getRawUserInfo(), "user-info (raw)");
+        d(uri.getHost(), "host");
+        d(Integer.toString(uri.getPort()), "port");
+        d(uri.getAuthority(), "authority");
+        d(uri.getRawAuthority(), "authority (raw)");
+        d(uri.getPath(), "path");
+        d(uri.getRawPath(), "path (raw)");
+        d(uri.getQuery(), "query");
+        d(uri.getRawQuery(), "query (raw)");
+        d(uri.getSchemeSpecificPart(), "scheme-specific-part");
+        d(uri.getRawSchemeSpecificPart(), "scheme-specific-part (raw)");
+        d(uri.getFragment(), "fragment");
+        d(uri.getRawFragment(), "fragment (raw)");
+    }
+
+    private static void d(final String value, final String label) {
+        System.out.printf("%26s: %s\n", label, value);
+    }
 }

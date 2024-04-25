@@ -36,7 +36,7 @@ public final class ResolveServlet extends HttpServlet {
         val ark = optArk.get();
         if (!ark.hasValidCheckDigit()) {
             log.warn("Invalid checksum: expected={}, actual={}", ark.checkDigitExpected(), ark.checkDigitActual());
-            if (System.getenv("ARK_TRY_ON_BAD_CHECKSUM") == null) {
+            if (!Optional.ofNullable(System.getenv("ARK_TRY_ON_BAD_CHECKSUM")).orElse("false").equalsIgnoreCase("true")) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
@@ -67,7 +67,7 @@ public final class ResolveServlet extends HttpServlet {
 //            out.println("</html>");
 //        }
 
-        if (System.getenv("ARK_ACCEL") != null) {
+        if (Optional.ofNullable(System.getenv("ARK_ACCEL")).orElse("false").equalsIgnoreCase("true")) {
             response.addHeader("X-Accel-Redirect", uri);
         } else {
             response.sendRedirect(uri);
@@ -87,7 +87,7 @@ public final class ResolveServlet extends HttpServlet {
      * In the case where database contains more than one record for the given
      * ark, an arbitrary one is returned.
      *
-     * @param ark in this form: {naan}/[{shoulder}]{blade}{check-digit}
+     * @param ark in this form: {naan}/{shoulder-blade}{check-digit}
      * @return uri
      */
     private Optional<URI> resolve(@NonNull final Ark ark) throws SQLException, URISyntaxException, NamingException {

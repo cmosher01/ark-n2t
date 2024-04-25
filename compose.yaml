@@ -32,8 +32,9 @@ services:
     build: "./"
     environment:
       "ARK_NAAN": "${ARK_NAAN}"
-      "ARK_NS": "${ARK_NS}"
-      "ARK_ACCEL": true
+      "ARK_SHOULDER": "${ARK_SHOULDER}"
+      "ARK_ACCEL": "${ARK_ACCEL}"
+      "ARK_TRY_ON_BAD_CHECKSUM": "${ARK_TRY_ON_BAD_CHECKSUM}"
     volumes:
       - type: volume
         source: "tomcat_db"

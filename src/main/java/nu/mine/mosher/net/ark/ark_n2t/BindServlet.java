@@ -13,7 +13,7 @@ import java.net.*;
 import java.sql.*;
 import java.util.Optional;
 
-@WebServlet("/bind/*")
+@WebServlet("/bind")
 @Slf4j
 public final class BindServlet extends HttpServlet {
     private final Alphabet alphabet = Alphabet.BETA_NUMERIC; // TODO env var for alphabet
@@ -34,10 +34,11 @@ public final class BindServlet extends HttpServlet {
 
     @Override
     @SneakyThrows
-    public void doGet(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response) {
+    public void doPost(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response) {
         val uri = uri(request);
         val ark = bind(uri);
-        response.sendRedirect("/"+ark);
+        val origin = Optional.ofNullable(request.getHeader("origin")).orElse("");
+        response.sendRedirect(origin+"/"+ark);
     }
 
     private static Shoulder getShoulderFromEnv(final Alphabet alphabet) {
@@ -105,7 +106,7 @@ public final class BindServlet extends HttpServlet {
     }
 
     private static URI uri(final HttpServletRequest request) throws URISyntaxException {
-        return new URI(request.getParameter("uri"));
+        return new URI(request.getParameter("url"));
     }
 
     private static Connection db() throws NamingException, SQLException {
