@@ -5,7 +5,7 @@ import jakarta.servlet.http.*;
 import lombok.*;
 
 @WebServlet("/health")
-public final class Health extends HttpServlet {
+public final class HealthServlet extends HttpServlet {
     @Override
     @SneakyThrows
     public void doGet(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response) {

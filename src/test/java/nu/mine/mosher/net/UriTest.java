@@ -44,4 +44,19 @@ public class UriTest {
         assertEquals(0, u1.compareTo(u2));
         assertEquals(u1.toString(), u1.toASCIIString());
     }
+
+    @Test
+    void space() {
+        val s = "http://example.com/a b/p.jpg";
+        assertThrows(URISyntaxException.class, () -> {
+            new URI(s);
+        });
+    }
+
+    @Test
+    void nonbmp() throws URISyntaxException {
+        val gclef = new String(new int[] {0x1D11E}, 0, 1);
+        val s = "http://example.com/a"+gclef+"b/p.jpg";
+        assertEquals("http://example.com/a%F0%9D%84%9Eb/p.jpg", new URI(s).toASCIIString());
+    }
 }
