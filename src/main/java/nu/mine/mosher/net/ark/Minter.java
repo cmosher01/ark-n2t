@@ -29,10 +29,13 @@ public final class Minter {
 
     private void appendBlade(final StringBuilder sb) {
         for (int i = 0; i < this.lenBlade; ++i) {
-            val random = this.rng.nextInt(this.alphabet.length());
-            val cp = this.alphabet.at(random);
-            sb.appendCodePoint(cp);
+            sb.appendCodePoint(rand());
         }
+    }
+
+    private int rand() {
+        val rnd = this.rng.nextInt(this.alphabet.length());
+        return this.alphabet.at(rnd);
     }
 
     private synchronized void prime() {

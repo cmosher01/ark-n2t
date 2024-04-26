@@ -32,7 +32,7 @@ public final class Ark {
             val naan = new Naan(matcher.group(1));
             val shoulderBladeCheck = decodePercentHex(matcher.group(2));
             val shoulderBlade = new ShoulderBlade(shoulderBladeCheck.substring(0, shoulderBladeCheck.length()-1));
-            val checkDigitActual = new CheckDigit(shoulderBladeCheck.substring(shoulderBladeCheck.length()-1).codePointAt(0));
+            val checkDigitActual = new CheckDigit(shoulderBladeCheck.codePointAt(shoulderBladeCheck.length()-1));
             val checkDigitExpected = check.checksum(naan, shoulderBlade, alphabet);
             return Optional.of(new Ark(naan, shoulderBlade, checkDigitActual, checkDigitExpected));
         } catch (final Exception e) {
@@ -40,7 +40,7 @@ public final class Ark {
         }
     }
 
-    public static Ark build(@NonNull final Naan naan, @NonNull final ShoulderBlade shoulderBlade, @NonNull final ChecksumAlgorithm check, @NonNull final Alphabet alphabet) {
+    public static Ark build(@NonNull final Naan naan, @NonNull final ShoulderBlade shoulderBlade, @NonNull final Alphabet alphabet, @NonNull final ChecksumAlgorithm check) {
         val checkDigit = check.checksum(naan, shoulderBlade, alphabet);
         return new Ark(naan, shoulderBlade, checkDigit, checkDigit);
     }
@@ -51,6 +51,7 @@ public final class Ark {
 
 
     // ark:{naan}/{shoulder-blade}{check-digit}
+    // TODO hyphenate (how?)
     @Override
     public String toString() {
         return LABEL + ":" + this.naan + "/" + this.shoulderBlade + this.checkDigitActual;

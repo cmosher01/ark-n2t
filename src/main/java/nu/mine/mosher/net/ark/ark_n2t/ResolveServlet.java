@@ -17,7 +17,7 @@ import java.util.Optional;
 @WebServlet("/resolve/*")
 @Slf4j
 public final class ResolveServlet extends HttpServlet {
-    private final Alphabet alphabet = Alphabet.BETA_NUMERIC; // TODO env var for alphabet
+    private final Alphabet alphabet = Alphabet.RECOMMENDED; // TODO env var for alphabet
     private final ChecksumAlgorithm check = new NoidChecksumAlgorithm(); // TODO env var for algorithm
 
     @Override
@@ -122,8 +122,8 @@ public final class ResolveServlet extends HttpServlet {
         }
 
         return
-                Optional.ofNullable(request.getPathInfo()).orElse("")+
-                        Optional.ofNullable(request.getQueryString()).orElse("");
+            Optional.ofNullable(request.getPathInfo()).orElse("")+
+            Optional.ofNullable(request.getQueryString()).orElse("");
     }
 
     private static Connection db() throws NamingException, SQLException {

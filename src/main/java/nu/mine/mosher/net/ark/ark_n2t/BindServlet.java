@@ -16,7 +16,7 @@ import java.util.Optional;
 @WebServlet("/bind")
 @Slf4j
 public final class BindServlet extends HttpServlet {
-    private final Alphabet alphabet = Alphabet.BETA_NUMERIC; // TODO env var for alphabet
+    private final Alphabet alphabet = Alphabet.RECOMMENDED; // TODO env var for alphabet
     private final ChecksumAlgorithm check = new NoidChecksumAlgorithm(); // TODO env var for algorithm
 
     private Naan naan;
@@ -81,7 +81,7 @@ public final class BindServlet extends HttpServlet {
      * @return ark in this form: {naan}/{shoulder-blade}{check-digit}
      */
     private Ark mint(@NonNull final URI uri) throws SQLException, NamingException {
-        val ark = Ark.build(this.naan, this.minter.mint(), this.check, this.alphabet);
+        val ark = Ark.build(this.naan, this.minter.mint(), this.alphabet, this.check);
         try (val db = db(); val st = db.prepareStatement(
                 "INSERT INTO Ark (ark, url) VALUES (?, ?)")) {
             st.setString(1, ark.toString());
@@ -98,6 +98,7 @@ public final class BindServlet extends HttpServlet {
             st.setString(1, uri.toASCIIString());
             try (val rs = st.executeQuery()) {
                 if (rs.next()) {
+                    // TODO parse string and return Ark?
                     return Optional.ofNullable(rs.getString("ark"));
                 }
             }

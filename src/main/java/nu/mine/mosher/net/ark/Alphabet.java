@@ -6,7 +6,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public final class Alphabet {
+    public static final Alphabet ALPHA_NUMERIC = new Alphabet("0123456789abcdefghijklmnopqrstuvwxyz");
     public static final Alphabet BETA_NUMERIC = new Alphabet("0123456789bcdfghjkmnpqrstvwxz");
+    public static final Alphabet GAMMA_NUMERIC = new Alphabet("2345678bcdfhjkmnpqstvwx");
+
+    public static final Alphabet RECOMMENDED = BETA_NUMERIC;
 
     private final List<Integer> r;
 
