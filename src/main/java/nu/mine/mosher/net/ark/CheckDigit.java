@@ -6,6 +6,8 @@ import java.util.Objects;
 
 @RequiredArgsConstructor
 public final class CheckDigit {
+    public static final CheckDigit NULL = new CheckDigit(0x0010FFFF);
+
     private final int codepoint;
 
     // TODO do we need to check against Alphabet in the constructor? or make this package-private?

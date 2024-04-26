@@ -16,19 +16,24 @@ import java.util.Optional;
 @WebServlet("/bind")
 @Slf4j
 public final class BindServlet extends HttpServlet {
-    private final Alphabet alphabet = Alphabet.RECOMMENDED; // TODO env var for alphabet
-    private final ChecksumAlgorithm check = new NoidChecksumAlgorithm(); // TODO env var for algorithm
+//    private final Alphabet alphabet = Alphabet.RECOMMENDED; // TODO env var for alphabet
+//    private final ChecksumAlgorithm check = new NoidChecksumAlgorithm(); // TODO env var for algorithm
+//
+//    private NameAssigningAuthority.Number naan;
+//    private Minter minter;
 
-    private Naan naan;
-    private Minter minter;
+    private NameAssigningAuthority naa;
 
     @Override
+    @SneakyThrows
     public void init(final ServletConfig config) throws ServletException {
         log.info("-------- HTTP servlet initialization --------");
         super.init(config);
-        this.naan = getNaanFromEnv();
-        val shoulder = getShoulderFromEnv(this.alphabet);
-        this.minter = new Minter(shoulder, 10, this.alphabet, Minter.DEFAULT_RNG);
+        // TODO read additional settings from env vars
+        val alphabet = Alphabet.RECOMMENDED;
+        val naan = getNaanFromEnv();
+        val shoulder = getShoulderFromEnv(alphabet);
+        this.naa = new NameAssigningAuthority(ds(), naan, shoulder, 10, alphabet, new NoidChecksumAlgorithm());
         log.info("-------- end of HTTP servlet initialization --------");
     }
 
@@ -36,7 +41,7 @@ public final class BindServlet extends HttpServlet {
     @SneakyThrows
     public void doPost(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response) {
         val uri = uri(request);
-        val ark = bind(uri);
+        val ark = this.naa.bind(uri);
         val origin = Optional.ofNullable(request.getHeader("origin")).orElse("");
         response.sendRedirect(origin+"/"+ark);
     }
@@ -54,65 +59,65 @@ public final class BindServlet extends HttpServlet {
         return shoulder;
     }
 
-    private static Naan getNaanFromEnv() {
-        final Naan naan;
+    private static NameAssigningAuthority.Number getNaanFromEnv() {
+        final NameAssigningAuthority.Number naan;
         val envArkNaan = Optional.ofNullable(System.getenv("ARK_NAAN"));
         if (envArkNaan.isEmpty()) {
-            naan = Naan.EXAMPLE;
+            naan = NameAssigningAuthority.Number.TEST;
             log.error(
                 "Could not find ARK_NAAN (name assigning authority number) environment variable; " +
-                "will use designated example NAAN: \"{}\".", naan);
+                "will use designated test NAAN: \"{}\".", naan);
         } else {
-            naan = new Naan(envArkNaan.get());
+            naan = new NameAssigningAuthority.Number(envArkNaan.get());
             log.info("Will use NAAN found in ARK_NAAN environment variable: \"{}\"", naan);
         }
         return naan;
     }
 
-    private String bind(final URI uri) throws SQLException, NamingException {
-        return find(uri).orElse(mint(uri).toString());
-    }
+//    private String bind(final URI uri) throws SQLException, NamingException {
+//        return find(uri).orElse(mint(uri).toString());
+//    }
 
-    /**
-     * Mint a new ark for the given URL and add the mapping to the database.
-     * Does not check if a mapping already exists.
-     *
-     * @param uri
-     * @return ark in this form: {naan}/{shoulder-blade}{check-digit}
-     */
-    private Ark mint(@NonNull final URI uri) throws SQLException, NamingException {
-        val ark = Ark.build(this.naan, this.minter.mint(), this.alphabet, this.check);
-        try (val db = db(); val st = db.prepareStatement(
-                "INSERT INTO Ark (ark, url) VALUES (?, ?)")) {
-            st.setString(1, ark.toString());
-            st.setString(2, uri.toASCIIString());
-            st.executeUpdate();
-        }
-        return ark;
-    }
-
-    private Optional<String> find(final URI uri) throws SQLException, NamingException {
-        try (
-            val db = db();
-            val st = db.prepareStatement("SELECT ark FROM Ark WHERE url = ?")) {
-            st.setString(1, uri.toASCIIString());
-            try (val rs = st.executeQuery()) {
-                if (rs.next()) {
-                    // TODO parse string and return Ark?
-                    return Optional.ofNullable(rs.getString("ark"));
-                }
-            }
-        }
-        return Optional.empty();
-    }
+//    /**
+//     * Mint a new ark for the given URL and add the mapping to the database.
+//     * Does not check if a mapping already exists.
+//     *
+//     * @param uri
+//     * @return ark in this form: {naan}/{shoulder-blade}{check-digit}
+//     */
+//    private Ark mint(@NonNull final URI uri) throws SQLException, NamingException {
+//        val ark = Ark.build(this.naan, this.minter.mint(), this.alphabet, this.check);
+//        try (val db = db(); val st = db.prepareStatement(
+//                "INSERT INTO Ark (ark, url) VALUES (?, ?)")) {
+//            st.setString(1, ark.toString());
+//            st.setString(2, uri.toASCIIString());
+//            st.executeUpdate();
+//        }
+//        return ark;
+//    }
+//
+//    private Optional<String> find(final URI uri) throws SQLException, NamingException {
+//        try (
+//            val db = db();
+//            val st = db.prepareStatement("SELECT ark FROM Ark WHERE url = ?")) {
+//            st.setString(1, uri.toASCIIString());
+//            try (val rs = st.executeQuery()) {
+//                if (rs.next()) {
+//                    // TODO parse string and return Ark?
+//                    return Optional.ofNullable(rs.getString("ark"));
+//                }
+//            }
+//        }
+//        return Optional.empty();
+//    }
 
     private static URI uri(final HttpServletRequest request) throws URISyntaxException {
         return new URI(request.getParameter("url"));
     }
 
-    private static Connection db() throws NamingException, SQLException {
-        return ds().getConnection();
-    }
+//    private static Connection db() throws NamingException, SQLException {
+//        return ds().getConnection();
+//    }
 
     private static DataSource ds() throws NamingException {
         val ctx = new InitialContext();

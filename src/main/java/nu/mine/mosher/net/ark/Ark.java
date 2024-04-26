@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import static java.lang.Character.isWhitespace;
 import static java.util.regex.Pattern.*;
 
+// ark:{naan}/{shoulder-blade}{check-digit}
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Ark {
     private static final String LABEL = "ark";
@@ -17,30 +18,20 @@ public final class Ark {
         "^/?"+LABEL+ ":/?(\\p{Alnum}+)/([\\p{Alnum}_@%~+*=$]+).*$",
         CANON_EQ | CASE_INSENSITIVE | UNICODE_CASE);
 
-    final Naan naan;
+    final NameAssigningAuthority.Number naan;
     final ShoulderBlade shoulderBlade;
     final CheckDigit checkDigitActual;
     final CheckDigit checkDigitExpected;
 
     public static Optional<Ark> parse(@NonNull final String s, @NonNull final Alphabet alphabet, @NonNull final ChecksumAlgorithm check) {
-        val matcher = PATTERN.matcher(normalize(s));
-        if (!matcher.matches()) {
-            return Optional.empty();
-        }
-
-        try {
-            val naan = new Naan(matcher.group(1));
-            val shoulderBladeCheck = decodePercentHex(matcher.group(2));
-            val shoulderBlade = new ShoulderBlade(shoulderBladeCheck.substring(0, shoulderBladeCheck.length()-1));
-            val checkDigitActual = new CheckDigit(shoulderBladeCheck.codePointAt(shoulderBladeCheck.length()-1));
-            val checkDigitExpected = check.checksum(naan, shoulderBlade, alphabet);
-            return Optional.of(new Ark(naan, shoulderBlade, checkDigitActual, checkDigitExpected));
-        } catch (final Exception e) {
-            return Optional.empty();
-        }
+        return parseInternal(s, alphabet, check);
     }
 
-    public static Ark build(@NonNull final Naan naan, @NonNull final ShoulderBlade shoulderBlade, @NonNull final Alphabet alphabet, @NonNull final ChecksumAlgorithm check) {
+    public static Optional<Ark> parseWeak(@NonNull final String s) {
+        return parseInternal(s, null, null);
+    }
+
+    public static Ark build(@NonNull final NameAssigningAuthority.Number naan, @NonNull final ShoulderBlade shoulderBlade, @NonNull final Alphabet alphabet, @NonNull final ChecksumAlgorithm check) {
         val checkDigit = check.checksum(naan, shoulderBlade, alphabet);
         return new Ark(naan, shoulderBlade, checkDigit, checkDigit);
     }
@@ -78,6 +69,33 @@ public final class Ark {
     }
 
 
+
+    private static Optional<Ark> parseInternal(final String s, final Alphabet alphabet, final ChecksumAlgorithm check) {
+        Optional<Ark> ret = Optional.empty();
+        try {
+            val matcher = PATTERN.matcher(normalize(s));
+            if (matcher.matches()) {
+                val naan = new NameAssigningAuthority.Number(matcher.group(1));
+                val shoulderBladeCheck = decodePercentHex(matcher.group(2));
+                val shoulderBlade = new ShoulderBlade(shoulderBladeCheck.substring(0, shoulderBladeCheck.length() - 1));
+                val checkDigitActual = new CheckDigit(shoulderBladeCheck.codePointAt(shoulderBladeCheck.length() - 1));
+                ret = Optional.of(new Ark(naan, shoulderBlade, checkDigitActual, check(alphabet, check, naan, shoulderBlade)));
+            }
+        } catch (final Exception e) {
+            ret = Optional.empty();
+        }
+        return ret;
+    }
+
+    private static CheckDigit check(Alphabet alphabet, ChecksumAlgorithm check, NameAssigningAuthority.Number naan, ShoulderBlade shoulderBlade) {
+        final CheckDigit checkDigitExpected;
+        if (Objects.nonNull(alphabet) && Objects.nonNull(check)) {
+            checkDigitExpected = check.checksum(naan, shoulderBlade, alphabet);
+        } else {
+            checkDigitExpected = CheckDigit.NULL;
+        }
+        return checkDigitExpected;
+    }
 
     static String normalize(@NonNull final String s) {
         val sb = new StringBuilder(s.length());

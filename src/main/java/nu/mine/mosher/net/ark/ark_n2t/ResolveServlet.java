@@ -17,8 +17,10 @@ import java.util.Optional;
 @WebServlet("/resolve/*")
 @Slf4j
 public final class ResolveServlet extends HttpServlet {
-    private final Alphabet alphabet = Alphabet.RECOMMENDED; // TODO env var for alphabet
-    private final ChecksumAlgorithm check = new NoidChecksumAlgorithm(); // TODO env var for algorithm
+//    private final Alphabet alphabet = Alphabet.RECOMMENDED; // TODO env var for alphabet
+//    private final ChecksumAlgorithm check = new NoidChecksumAlgorithm(); // TODO env var for algorithm
+
+    private NameMappingAuthority nma;
 
     @Override
     @SneakyThrows
@@ -26,7 +28,7 @@ public final class ResolveServlet extends HttpServlet {
         val uriRaw = uri(request);
         log.info("URI: \"{}\"", uriRaw);
 
-        val optArk = Ark.parse(uriRaw, this.alphabet, this.check);
+        val optArk = this.nma.parse(uriRaw);
         if (optArk.isEmpty()) {
             log.error("Invalid format ARK: {}", uriRaw);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -36,7 +38,7 @@ public final class ResolveServlet extends HttpServlet {
         val ark = optArk.get();
         if (!ark.hasValidCheckDigit()) {
             log.warn("Invalid checksum: expected={}, actual={}", ark.checkDigitExpected(), ark.checkDigitActual());
-            if (!Optional.ofNullable(System.getenv("ARK_TRY_ON_BAD_CHECKSUM")).orElse("false").equalsIgnoreCase("true")) {
+            if (!Optional.ofNullable(System.getenv("ARK_TRY_ON_BAD_CHECKSUM")).orElse("true").equalsIgnoreCase("true")) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
@@ -44,7 +46,7 @@ public final class ResolveServlet extends HttpServlet {
 
         // TODO handle: "?", "??", "?info"
 
-        val optUri = resolve(ark);
+        val optUri = this.nma.resolve(ark);
         if (optUri.isEmpty()) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -81,37 +83,37 @@ public final class ResolveServlet extends HttpServlet {
         super.doPost(request, response);
     }
 
-    /**
-     * Looks up the given ARK in the database, and returns its URL.
-     * Returns empty string if not found.
-     * In the case where database contains more than one record for the given
-     * ark, an arbitrary one is returned.
-     *
-     * @param ark in this form: {naan}/{shoulder-blade}{check-digit}
-     * @return uri
-     */
-    private Optional<URI> resolve(@NonNull final Ark ark) throws SQLException, URISyntaxException, NamingException {
-        log.info("Will try to resolve ark: \"{}\"", ark.toString());
-        try (val db = db(); val st = db.prepareStatement(
-            "SELECT url FROM Ark WHERE ark = ?")) {
-            st.setString(1, ark.toString());
-            try (val rs = st.executeQuery()) {
-                if (rs.next()) {
-                    log.info("Found Ark row in datastore.");
-                    val optStrUri = Optional.ofNullable(rs.getString("url"));
-                    if (optStrUri.isEmpty()) {
-                        log.warn("URL in datastore was blank.");
-                        return Optional.empty();
-                    }
-                    log.info("URL from datastore: {}", optStrUri.get());
-                    return Optional.of(new URI(optStrUri.get()));
-                } else {
-                    log.warn("Could not find Ark row in datastore.");
-                }
-            }
-        }
-        return Optional.empty();
-    }
+//    /**
+//     * Looks up the given ARK in the database, and returns its URL.
+//     * Returns empty string if not found.
+//     * In the case where database contains more than one record for the given
+//     * ark, an arbitrary one is returned.
+//     *
+//     * @param ark in this form: {naan}/{shoulder-blade}{check-digit}
+//     * @return uri
+//     */
+//    private Optional<URI> resolve(@NonNull final Ark ark) throws SQLException, URISyntaxException, NamingException {
+//        log.info("Will try to resolve ark: \"{}\"", ark.toString());
+//        try (val db = db(); val st = db.prepareStatement(
+//            "SELECT url FROM Ark WHERE ark = ?")) {
+//            st.setString(1, ark.toString());
+//            try (val rs = st.executeQuery()) {
+//                if (rs.next()) {
+//                    log.info("Found Ark row in datastore.");
+//                    val optStrUri = Optional.ofNullable(rs.getString("url"));
+//                    if (optStrUri.isEmpty()) {
+//                        log.warn("URL in datastore was blank.");
+//                        return Optional.empty();
+//                    }
+//                    log.info("URL from datastore: {}", optStrUri.get());
+//                    return Optional.of(new URI(optStrUri.get()));
+//                } else {
+//                    log.warn("Could not find Ark row in datastore.");
+//                }
+//            }
+//        }
+//        return Optional.empty();
+//    }
 
     private static String uri(final HttpServletRequest request) {
         // requires proxy to supply this header, which allows us to get the
@@ -126,9 +128,9 @@ public final class ResolveServlet extends HttpServlet {
             Optional.ofNullable(request.getQueryString()).orElse("");
     }
 
-    private static Connection db() throws NamingException, SQLException {
-        return ds().getConnection();
-    }
+//    private static Connection db() throws NamingException, SQLException {
+//        return ds().getConnection();
+//    }
 
     private static DataSource ds() throws NamingException {
         val ctx = new InitialContext();

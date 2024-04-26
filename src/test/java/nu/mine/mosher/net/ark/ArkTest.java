@@ -20,7 +20,7 @@ public class ArkTest {
     void checkDigit() {
         val BN = Alphabet.BETA_NUMERIC;
         val uut = new NoidChecksumAlgorithm();
-        val naan = new Naan("13030");
+        val naan = new NameAssigningAuthority.Number("13030");
         val shoulder_blade = new ShoulderBlade("xf93gt2");
 
         val actual = uut.checksum(naan, shoulder_blade, BN);
