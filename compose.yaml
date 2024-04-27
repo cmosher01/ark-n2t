@@ -10,7 +10,7 @@ services:
     image: "nginx"
     volumes:
       - type: bind
-        source: "./src/test/nginx/nginx.conf"
+        source: "./app/src/test/nginx/nginx.conf"
         target: "/etc/nginx/nginx.conf"
         read_only: true
     ports:

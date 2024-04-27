@@ -4,3 +4,8 @@ plugins {
 }
 
 rootProject.name = 'ark-n2t'
+
+include 'app', 'lib'
+
+project(':app').name = 'ark-n2t-servlet'
+project(':lib').name = 'ark-n2t'

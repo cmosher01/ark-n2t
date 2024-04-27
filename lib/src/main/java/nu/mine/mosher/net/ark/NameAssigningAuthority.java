@@ -66,7 +66,7 @@ public final class NameAssigningAuthority {
         this(dataSource, naan, Shoulder.NULL, 10, Alphabet.RECOMMENDED, new NoidChecksumAlgorithm());
     }
 
-    public NameAssigningAuthority(@NonNull final DataSource dataSource, @NonNull final Number naan, @NonNull final Shoulder shoulder, @NonNull final int lenBlade, @NonNull final Alphabet alphabet, @NonNull final ChecksumAlgorithm check) {
+    public NameAssigningAuthority(@NonNull final DataSource dataSource, @NonNull final Number naan, @NonNull final Shoulder shoulder, final int lenBlade, @NonNull final Alphabet alphabet, @NonNull final ChecksumAlgorithm check) {
         this.dataSource = dataSource;
         this.naan = naan;
         this.alphabet = alphabet;
