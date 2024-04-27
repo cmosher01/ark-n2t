@@ -1,13 +1,14 @@
 package nu.mine.mosher.net.ark;
 
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.net.URI;
 import java.sql.*;
 import java.util.*;
 
+@Slf4j
 public final class NameAssigningAuthority {
     public static final class Number {
         private static final Alphabet ALLOWABLE = Alphabet.BETA_NUMERIC;

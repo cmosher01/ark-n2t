@@ -9,6 +9,9 @@ public final class Alphabet {
     public static final Alphabet ALPHA_NUMERIC = new Alphabet("0123456789abcdefghijklmnopqrstuvwxyz");
     public static final Alphabet BETA_NUMERIC = new Alphabet("0123456789bcdfghjkmnpqrstvwxz");
     public static final Alphabet GAMMA_NUMERIC = new Alphabet("2345678bcdfhjkmnpqstvwx");
+    public static final Alphabet DELTA_NUMERIC = new Alphabet("2347cdfhjkmnpqtvwx");
+    public static final Alphabet ALPHA = new Alphabet("abcdefghijklmnopqrstuvwxyz");
+    public static final Alphabet NUMERIC = new Alphabet("0123456789");
 
     public static final Alphabet RECOMMENDED = BETA_NUMERIC;
 

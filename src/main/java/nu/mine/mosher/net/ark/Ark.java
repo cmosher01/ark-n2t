@@ -36,6 +36,14 @@ public final class Ark {
         return new Ark(naan, shoulderBlade, checkDigit, checkDigit);
     }
 
+    public CheckDigit checkDigitActual() {
+        return this.checkDigitActual;
+    }
+
+    public CheckDigit checkDigitExpected() {
+        return this.checkDigitExpected;
+    }
+
     public boolean hasValidCheckDigit() {
         return this.checkDigitActual.equals(this.checkDigitExpected);
     }
@@ -60,52 +68,42 @@ public final class Ark {
         return Objects.hash(this.naan, this.shoulderBlade, this.checkDigitActual);
     }
 
-    public CheckDigit checkDigitExpected() {
-        return this.checkDigitExpected;
-    }
-
-    public CheckDigit checkDigitActual() {
-        return this.checkDigitActual;
-    }
-
 
 
     private static Optional<Ark> parseInternal(final String s, final Alphabet alphabet, final ChecksumAlgorithm check) {
-        Optional<Ark> ret = Optional.empty();
-        try {
-            val matcher = PATTERN.matcher(normalize(s));
-            if (matcher.matches()) {
-                val naan = new NameAssigningAuthority.Number(matcher.group(1));
-                val shoulderBladeCheck = decodePercentHex(matcher.group(2));
-                val shoulderBlade = new ShoulderBlade(shoulderBladeCheck.substring(0, shoulderBladeCheck.length() - 1));
-                val checkDigitActual = new CheckDigit(shoulderBladeCheck.codePointAt(shoulderBladeCheck.length() - 1));
-                ret = Optional.of(new Ark(naan, shoulderBlade, checkDigitActual, check(alphabet, check, naan, shoulderBlade)));
-            }
-        } catch (final Exception e) {
+        final Optional<Ark> ret;
+        val matcher = PATTERN.matcher(normalize(s));
+        if (matcher.matches()) {
+            val naan = new NameAssigningAuthority.Number(matcher.group(1));
+            val shoulderBladeCheck = decodePercentHex(matcher.group(2));
+            val shoulderBlade = new ShoulderBlade(shoulderBladeCheck.substring(0, shoulderBladeCheck.length() - 1));
+            val checkDigitActual = new CheckDigit(shoulderBladeCheck.codePointAt(shoulderBladeCheck.length() - 1));
+            ret = Optional.of(new Ark(naan, shoulderBlade, checkDigitActual, check(alphabet, check, naan, shoulderBlade)));
+        } else {
             ret = Optional.empty();
         }
         return ret;
     }
 
     private static CheckDigit check(Alphabet alphabet, ChecksumAlgorithm check, NameAssigningAuthority.Number naan, ShoulderBlade shoulderBlade) {
-        final CheckDigit checkDigitExpected;
+        final CheckDigit ret;
         if (Objects.nonNull(alphabet) && Objects.nonNull(check)) {
-            checkDigitExpected = check.checksum(naan, shoulderBlade, alphabet);
+            ret = check.checksum(naan, shoulderBlade, alphabet);
         } else {
-            checkDigitExpected = CheckDigit.NULL;
+            ret = CheckDigit.NULL;
         }
-        return checkDigitExpected;
+        return ret;
     }
 
-    static String normalize(@NonNull final String s) {
+    static String normalize(final String s) {
         val sb = new StringBuilder(s.length());
         s
-                .codePoints()
-                .filter(c -> !isWhitespace(c))
-                .filter(c -> !isDash(c))
-                .map(c -> c==76 || c==108 ? 49 : c) // "L" or "l" to "1"
-                .map(c -> c==79 || c==111 ? 48 : c) // "O" or "o" to "0"
-                .forEach(sb::appendCodePoint);
+            .codePoints()
+            .filter(c -> !isWhitespace(c))
+            .filter(c -> !isDash(c))
+            .map(c -> c==76 || c==108 ? 49 : c) // "L" or "l" to "1"
+            .map(c -> c==79 || c==111 ? 48 : c) // "O" or "o" to "0"
+            .forEach(sb::appendCodePoint);
         return sb.toString();
     }
 
@@ -122,11 +120,11 @@ public final class Ark {
     }
 
     static String decodePercentHex(final String s) {
-        if (s == null) {
+        if (Objects.isNull(s)) {
             return "";
         }
         try {
-            return URLDecoder.decode(s.replace("+", "%2B"), StandardCharsets.US_ASCII);
+            return URLDecoder.decode(s.replace("+", "%2B"), StandardCharsets.UTF_8);
         } catch (final Exception e) {
             // TODO what to do here?
             return s;

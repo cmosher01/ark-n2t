@@ -3,7 +3,6 @@ package nu.mine.mosher.net.ark;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.net.*;
 import java.sql.*;
@@ -34,7 +33,8 @@ public final class NameMappingAuthority {
      * @return uri
      */
     public Optional<URI> resolve(@NonNull final Ark ark) throws SQLException, URISyntaxException {
-        log.info("Will try to resolve ark: \"{}\"", ark.toString());
+        Optional<URI> ret = Optional.empty();
+        log.info("Will try to resolve ark: \"{}\"", ark);
         try (val db = db(); val st = db.prepareStatement(
             "SELECT url FROM Ark WHERE ark = ?")) {
             st.setString(1, ark.toString());
@@ -42,18 +42,18 @@ public final class NameMappingAuthority {
                 if (rs.next()) {
                     log.info("Found Ark row in datastore.");
                     val optStrUri = Optional.ofNullable(rs.getString("url"));
-                    if (optStrUri.isEmpty()) {
+                    if (optStrUri.isPresent()) {
+                        log.info("URL from datastore: {}", optStrUri.get());
+                        ret = Optional.of(new URI(optStrUri.get()));
+                    } else {
                         log.warn("URL in datastore was blank.");
-                        return Optional.empty();
                     }
-                    log.info("URL from datastore: {}", optStrUri.get());
-                    return Optional.of(new URI(optStrUri.get()));
                 } else {
                     log.warn("Could not find Ark row in datastore.");
                 }
             }
         }
-        return Optional.empty();
+        return ret;
     }
 
     public Optional<Ark> parse(@NonNull final String s) {
