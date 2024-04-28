@@ -15,6 +15,7 @@ RUN ./gradlew --version
 
 COPY settings.gradle ./
 COPY lib/ ./lib/
+COPY cli/ ./cli/
 COPY app/ ./app/
 
 RUN ./gradlew -i build
@@ -31,3 +32,5 @@ RUN apt-get update && apt-get install -y sqlite
 
 COPY --from=build /root/app/src/main/tomcat/conf /usr/local/tomcat/conf
 COPY --from=build /root/app/build/libs/*.war /usr/local/tomcat/webapps/ROOT.war
+COPY --from=build /root/cli/build/distributions/*.tar ./
+RUN tar --strip-components=1 -C /usr/local -xvf *.tar

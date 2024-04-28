@@ -1,11 +1,11 @@
-
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
 }
 
 rootProject.name = 'ark-n2t'
 
-include 'app', 'lib'
+include 'app', 'cli', 'lib'
 
 project(':app').name = 'ark-n2t-servlet'
+project(':cli').name = 'ark-n2t-cli'
 project(':lib').name = 'ark-n2t'

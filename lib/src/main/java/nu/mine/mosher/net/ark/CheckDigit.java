@@ -10,8 +10,6 @@ public final class CheckDigit {
 
     private final int codepoint;
 
-    // TODO do we need to check against Alphabet in the constructor? or make this package-private?
-
     @Override
     public String toString() {
         return new String(new int[] {this.codepoint}, 0, 1);

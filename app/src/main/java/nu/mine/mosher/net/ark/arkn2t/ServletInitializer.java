@@ -1,4 +1,4 @@
-package nu.mine.mosher.net.ark.ark_n2t;
+package nu.mine.mosher.net.ark.arkn2t;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebListener;

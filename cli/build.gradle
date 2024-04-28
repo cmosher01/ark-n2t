@@ -1,6 +1,7 @@
 plugins {
-    id 'war'
+    id 'application'
     id "io.freefair.lombok" version "6.5.1"
+    id "org.beryx.runtime" version "1.12.7"
 }
 
 
@@ -19,15 +20,11 @@ repositories {
 dependencies {
     implementation project(':ark-n2t')
     implementation group: 'org.slf4j', name: 'slf4j-api', version: 'latest.release'
-    runtimeOnly group: 'nu.mine.mosher.io', name: 'adapt-slf4j-to-servlet', version: 'latest.release'
+    implementation group: 'nu.mine.mosher.gnopt', name: 'gnopt', version: 'latest.release'
 
     runtimeOnly group: 'org.xerial', name: 'sqlite-jdbc', version: 'latest.release'
     runtimeOnly group: 'org.liquibase', name: 'liquibase-core', version: 'latest.release'
-
-    providedCompile group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '5.+'
 }
-
-
 
 java {
     toolchain {
@@ -35,3 +32,9 @@ java {
         vendor = JvmVendorSpec.ADOPTIUM
     }
 }
+
+application {
+    mainClass = 'nu.mine.mosher.net.ark.arkn2t.ArkN2t'
+}
+
+// tasks.assemble.dependsOn tasks.jpackage
